@@ -1,0 +1,95 @@
+<%
+  const layout = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Nepal Dairy NDS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>`;
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Nepal Dairy NDS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('partials/navbar') %>
+  <main class="main-content">
+    <div class="page-header">
+      <h2>Dashboard</h2>
+      <div class="nepali-date-inline" id="nepaliDate"></div>
+    </div>
+    <div class="welcome-banner">
+      Welcome back, <strong><%= user.username %></strong>!
+      <span class="role-badge role-<%= user.role.toLowerCase() %>"><%= user.role %></span>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value"><%= stats.products %></div>
+        <div class="stat-label">Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔬</div>
+        <div class="stat-value"><%= stats.labTests %></div>
+        <div class="stat-label">Lab Tests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value"><%= stats.salesCount %></div>
+        <div class="stat-label">Sales Records</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💵</div>
+        <div class="stat-value">Rs. <%= stats.salesTotal.toLocaleString() %></div>
+        <div class="stat-label">Total Revenue</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-value"><%= stats.onlineOrders %></div>
+        <div class="stat-label">Pending Online Orders</div>
+      </div>
+      <% if (user.role === 'Administrator') { %>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value"><%= stats.users %></div>
+        <div class="stat-label">System Users</div>
+      </div>
+      <% } %>
+    </div>
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <div class="action-grid">
+        <% if (user.role === 'Administrator' || user.role === 'Lab') { %>
+        <a href="/lab" class="action-card">
+          <span>🔬</span> Record Lab Test
+        </a>
+        <% } %>
+        <% if (user.role === 'Administrator' || user.role === 'Sales') { %>
+        <a href="/sales" class="action-card">
+          <span>📋</span> Record Sale
+        </a>
+        <% } %>
+        <a href="/orders" class="action-card">
+          <span>📦</span> Online Orders
+        </a>
+        <% if (user.role === 'Administrator') { %>
+        <a href="/admin/products" class="action-card">
+          <span>📦</span> Manage Products
+        </a>
+        <a href="/admin/users" class="action-card">
+          <span>👥</span> Manage Users
+        </a>
+        <% } %>
+      </div>
+    </div>
+  </main>
+  <script src="/nepali-calendar.js"></script>
+</body>
+</html>

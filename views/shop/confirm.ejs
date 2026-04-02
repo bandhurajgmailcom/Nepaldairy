@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed - NDS Online Order</title>
+  <link rel="stylesheet" href="/css/shop.css">
+</head>
+<body>
+
+<header class="shop-header">
+  <a href="/shop" class="shop-brand">
+    <img src="/logo.png" alt="Nepal Dairy NDS" style="height:36px;width:auto;object-fit:contain;">
+    <div>
+      <span class="name">Nepal Dairy NDS</span>
+      <span class="sub">Modern Foods</span>
+    </div>
+  </a>
+  <nav class="shop-nav">
+    <a href="/shop">Home</a>
+  </nav>
+  <a href="/shop/cart" class="cart-btn">
+    🛒 Cart <span class="cart-badge">0</span>
+  </a>
+</header>
+
+<div class="shop-container">
+  <div class="confirm-box">
+    <div class="confirm-icon">✅</div>
+    <div class="confirm-title">Order Placed!</div>
+    <div class="confirm-sub">
+      Thank you, <strong><%= order.CUSTOMER_NAME %></strong>!<br>
+      Your order has been received.
+    </div>
+    <div class="order-no-badge"><%= order.ORDER_NO %></div>
+
+    <div class="payment-box">
+      <h4>📱 Complete Your Payment</h4>
+      <p>Please pay <strong>Rs. <%= order.TOTAL_AMOUNT ? order.TOTAL_AMOUNT.toLocaleString() : 0 %></strong> via QR code.<br>
+      Your order will be processed once payment is confirmed.</p>
+    </div>
+
+    <div class="confirm-details">
+      <p><strong>Order Date:</strong> <%= order.ORDER_DATE %>
+        <% if (order.BS_DATE) { %> &nbsp;|&nbsp; <%= order.BS_DATE %><% } %>
+      </p>
+      <% if (order.READY_DATE) { %>
+      <p><strong>Ready By:</strong> <span style="color:#c0392b;font-weight:700;"><%= order.READY_DATE %></span></p>
+      <% } %>
+      <p><strong>Contact:</strong> <%= order.CUSTOMER_PHONE %></p>
+      <% if (order.CUSTOMER_ADDRESS) { %><p><strong>Address:</strong> <%= order.CUSTOMER_ADDRESS %></p><% } %>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Pack</th>
+            <th>Qty</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% items.forEach(item => { %>
+          <tr>
+            <td><%= item.PRODUCT %></td>
+            <td><%= item.CATEGORY %><% if (item.SUBCATEGORY) { %> / <%= item.SUBCATEGORY %><% } %></td>
+            <td><%= item.QTY_PACK %> / <%= item.UNIT %></td>
+            <td><%= item.QUANTITY %></td>
+            <td>Rs. <%= item.AMOUNT ? item.AMOUNT.toLocaleString() : 0 %></td>
+          </tr>
+          <% }) %>
+          <tr>
+            <td colspan="4" style="text-align:right;font-weight:700;">Total</td>
+            <td class="confirm-total">Rs. <%= order.TOTAL_AMOUNT ? order.TOTAL_AMOUNT.toLocaleString() : 0 %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:2rem;">
+      <a href="/shop" class="btn-secondary">← Continue Shopping</a>
+    </div>
+  </div>
+</div>
+
+<footer class="shop-footer">
+  &copy; <%= new Date().getFullYear() %> Nepal Dairy NDS Modern Foods Pvt. Ltd. &nbsp;|&nbsp; +977-01-5915373
+</footer>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - NDS Online Order</title>
+  <link rel="stylesheet" href="/css/shop.css">
+</head>
+<body>
+
+<header class="shop-header">
+  <a href="/shop" class="shop-brand">
+    <img src="/logo.png" alt="Nepal Dairy NDS" style="height:36px;width:auto;object-fit:contain;">
+    <div>
+      <span class="name">Nepal Dairy NDS</span>
+      <span class="sub">Modern Foods</span>
+    </div>
+  </a>
+  <nav class="shop-nav">
+    <a href="/shop">Home</a>
+  </nav>
+  <a href="/shop/cart" class="cart-btn">
+    🛒 Cart <span class="cart-badge"><%= cartCount %></span>
+  </a>
+</header>
+
+<div class="shop-container">
+  <div class="breadcrumb">
+    <a href="/shop">Home</a> <span>/</span>
+    <a href="/shop/cart">Cart</a> <span>/</span>
+    <strong>Checkout</strong>
+  </div>
+
+  <h2 class="page-title">Checkout</h2>
+
+  <% if (error) { %>
+  <div class="alert-error"><%= error %></div>
+  <% } %>
+
+  <div class="checkout-layout">
+    <!-- Customer Info + Place Order -->
+    <div>
+      <form method="POST" action="/shop/place-order">
+        <div class="checkout-card" style="margin-bottom:1.2rem;">
+          <h3>Your Details</h3>
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" name="customer_name" placeholder="Your full name" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" name="customer_phone" placeholder="98XXXXXXXX" required>
+          </div>
+          <div class="form-group">
+            <label>Delivery Address</label>
+            <input type="text" name="customer_address" placeholder="Street, area, city">
+          </div>
+          <div class="form-group">
+            <label>Requested Ready Date *</label>
+            <!-- Hidden AD date sent to server -->
+            <input type="hidden" name="ready_date" id="readyDateAD" required>
+            <!-- Display field -->
+            <div id="rdDisplay" onclick="toggleNepCal()"
+                 style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:6px;cursor:pointer;background:#fff;user-select:none;">
+              <span style="font-size:1.1rem;">📅</span>
+              <span id="rdText" style="color:#9ca3af;font-size:0.9rem;">Click to select date (Nepali calendar)</span>
+            </div>
+            <small style="color:#6b7280;font-size:0.78rem;">When would you like your order to be ready?</small>
+
+            <!-- Nepali Calendar Popup -->
+            <div id="nepCal" style="display:none;margin-top:8px;background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,0.12);">
+
+              <!-- Nav -->
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:6px;">
+                <div style="display:flex;gap:4px;">
+                  <button type="button" onclick="ncNavYear(-1)" style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 10px;font-weight:700;cursor:pointer;color:#1a237e;">«</button>
+                  <button type="button" onclick="ncNavMonth(-1)" style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 10px;font-weight:700;cursor:pointer;color:#1a237e;">‹</button>
+                </div>
+                <div style="text-align:center;flex:1;">
+                  <div id="ncBsTitle" style="font-size:1rem;font-weight:700;color:#1a237e;"></div>
+                  <div id="ncAdTitle" style="font-size:0.72rem;color:#9ca3af;margin-top:1px;"></div>
+                </div>
+                <div style="display:flex;gap:4px;">
+                  <button type="button" onclick="ncNavMonth(1)" style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 10px;font-weight:700;cursor:pointer;color:#1a237e;">›</button>
+                  <button type="button" onclick="ncNavYear(1)" style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 10px;font-weight:700;cursor:pointer;color:#1a237e;">»</button>
+                </div>
+              </div>
+
+              <!-- Weekday headers -->
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
+                <% ['आइत','सोम','मंगल','बुध','बिही','शुक्र','शनि'].forEach((d,i) => { %>
+                <div style="text-align:center;font-size:0.7rem;font-weight:700;padding:3px 0;color:<%= i===0?'#e53935':i===6?'#1565c0':'#7986cb' %>"><%= d %></div>
+                <% }) %>
+              </div>
+
+              <!-- Day grid -->
+              <div id="ncGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
+
+              <!-- Selected info -->
+              <div id="ncSelected" style="margin-top:10px;padding:8px 10px;background:#e8eaf6;border-radius:7px;border-left:3px solid #c0392b;display:none;font-size:0.82rem;color:#1a237e;">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Notes (optional)</label>
+            <textarea name="notes" placeholder="Any special instructions…"></textarea>
+          </div>
+        </div>
+
+        <div class="checkout-card">
+          <h3>Payment</h3>
+          <div class="qr-section">
+            <div class="qr-placeholder">
+              <span class="qr-icon">📱</span>
+              <span>QR Code<br>Coming Soon</span>
+            </div>
+            <p style="font-weight:700;font-size:1rem;margin-top:0.5rem;">Pay by QR Code</p>
+            <p class="qr-label">Scan the QR code with your banking app to pay</p>
+            <div class="qr-note">
+              ⚠️ After placing your order, scan the QR code and complete payment.<br>
+              Your order will be processed once payment is confirmed.
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">📦 Place Order</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="checkout-card">
+      <h3>Order Summary</h3>
+      <div class="order-summary-mini">
+        <% cart.forEach(item => { %>
+        <div class="item-row">
+          <span><%= item.product %> <small>(<%= item.qtyPack %>) x<%= item.quantity %></small></span>
+          <span>Rs. <%= item.amount.toLocaleString() %></span>
+        </div>
+        <% }) %>
+        <div class="total-row">
+          <span>Total</span>
+          <span>Rs. <%= total.toLocaleString() %></span>
+        </div>
+      </div>
+      <div style="margin-top:1.2rem;">
+        <a href="/shop/cart" class="btn-secondary" style="width:100%;text-align:center;">✏️ Edit Cart</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="shop-footer">
+  &copy; <%= new Date().getFullYear() %> Nepal Dairy NDS Modern Foods Pvt. Ltd.
+</footer>
+<script>
+(function(){
+  const M_NP = ['बैशाख','जेठ','असार','साउन','भदौ','असोज','कात्तिक','मंसिर','पुष','माघ','फागुन','चैत'];
+  const M_EN = ['Baishakh','Jestha','Ashadh','Shrawan','Bhadra','Ashwin','Kartik','Mangsir','Poush','Magh','Falgun','Chaitra'];
+  const AD_M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const REF  = new Date(2000, 3, 14); // 1 Baishakh 2057 = 14 Apr 2000
+
+  let CAL = {
+    2075:[31,32,31,32,31,30,30,29,30,29,30,30],
+    2076:[31,32,31,32,31,30,30,30,29,29,30,30],
+    2077:[31,32,31,31,31,30,30,29,30,29,30,30],
+    2078:[31,31,32,31,31,31,30,30,29,30,29,31],
+    2079:[31,32,31,32,31,30,30,30,29,29,30,30],
+    2080:[31,32,31,32,31,30,30,30,29,29,30,30],
+    2081:[31,31,32,31,31,31,30,29,30,29,30,30],
+    2082:[31,32,31,32,31,30,30,30,29,30,30,30],
+    2083:[31,31,32,32,31,30,30,30,29,30,30,30],
+    2084:[31,31,32,32,31,30,30,30,29,30,30,30],
+    2085:[31,32,31,32,31,30,30,29,30,29,30,30],
+    2086:[31,32,31,32,31,30,30,30,29,29,30,31],
+  };
+
+  fetch('/api/nepalical').then(r=>r.json()).then(d=>{ if(d) Object.assign(CAL,d); }).catch(()=>{});
+
+  function md(y,m){ return (CAL[y]&&CAL[y][m]!=null)?CAL[y][m]:[31,31,32,32,31,30,30,29,30,29,30,30][m]; }
+
+  function bsToAd(bY,bM,bD){
+    const RY=2057,RM=0,RD=1;
+    const cmp=bY!==RY?bY-RY:bM!==RM?bM-RM:bD-RD;
+    if(!cmp) return new Date(REF);
+    let days=0;
+    if(cmp>0){
+      let y=RY,m=RM,d=RD;
+      if(y===bY&&m===bM){days=bD-d;}
+      else{days=md(y,m)-d+1;if(++m>=12){m=0;y++;}while(!(y===bY&&m===bM)){days+=md(y,m);if(++m>=12){m=0;y++;}}days+=bD-1;}
+      return new Date(REF.getTime()+days*86400000);
+    } else {
+      let y=bY,m=bM,d=bD;
+      if(y===RY&&m===RM){days=RD-d;}
+      else{days=md(y,m)-d+1;if(++m>=12){m=0;y++;}while(!(y===RY&&m===RM)){days+=md(y,m);if(++m>=12){m=0;y++;}}days+=RD-1;}
+      return new Date(REF.getTime()-days*86400000);
+    }
+  }
+
+  function adToBs(ad){
+    const diff=Math.round((ad-REF)/86400000);
+    let y=2057,m=0,d=1,r=diff;
+    if(r>=0){while(r>0){const total=md(y,m),left=total-d+1;if(r>=left){r-=left;d=1;if(++m>=12){m=0;y++;}}else{d+=r;r=0;}}}
+    else{r=-r;while(r>0){if(r>=d){r-=d;if(--m<0){m=11;y--;}d=md(y,m);}else{d-=r;r=0;}}}
+    return {year:y,month:m,day:d};
+  }
+
+  function pad2(n){return n<10?'0'+n:''+n;}
+  function fmtAD(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
+  function toNp(n){return String(n).replace(/\d/g,c=>'०१२३४५६७८९'[c]);}
+
+  const todayAD = new Date();
+  todayAD.setHours(0,0,0,0);
+  const todayBS = adToBs(todayAD);
+
+  let ncY = todayBS.year;
+  let ncM = todayBS.month;
+  let ncNotes = {};
+
+  function loadNCNotes(y, m, cb) {
+    fetch('/api/calendar-notes?year='+y+'&month='+(m+1))
+      .then(r => r.ok ? r.json() : {})
+      .then(data => { ncNotes = (data && !data.error) ? data : {}; cb(); })
+      .catch(() => { ncNotes = {}; cb(); });
+  }
+
+  window.toggleNepCal = function(){
+    const el = document.getElementById('nepCal');
+    if(el.style.display==='none'){
+      el.style.display='block';
+      loadNCNotes(ncY, ncM, renderNC);
+    } else {
+      el.style.display='none';
+    }
+  };
+
+  window.ncNavMonth = function(d){
+    ncM+=d;
+    if(ncM<0){ncM=11;ncY--;}
+    if(ncM>11){ncM=0;ncY++;}
+    loadNCNotes(ncY, ncM, renderNC);
+  };
+
+  window.ncNavYear = function(d){
+    ncY+=d;
+    loadNCNotes(ncY, ncM, renderNC);
+  };
+
+  function bsKey(y,m,d){
+    return y+'-'+pad2(m+1)+'-'+pad2(d);
+  }
+
+  function renderNC(){
+    const y=ncY, m=ncM;
+    const dim=md(y,m);
+    const firstAD=bsToAd(y,m,1);
+    const lastAD=bsToAd(y,m,dim);
+    const dow=firstAD.getDay();
+
+    document.getElementById('ncBsTitle').textContent=M_NP[m]+' '+toNp(y)+' ('+M_EN[m]+' '+y+' BS)';
+    const adSpan=firstAD.getMonth()===lastAD.getMonth()
+      ? AD_M[firstAD.getMonth()]+' '+firstAD.getFullYear()
+      : AD_M[firstAD.getMonth()]+' – '+AD_M[lastAD.getMonth()]+' '+lastAD.getFullYear();
+    document.getElementById('ncAdTitle').textContent='AD: '+adSpan;
+
+    let html='';
+    for(let i=0;i<dow;i++) html+='<div></div>';
+
+    for(let d=1;d<=dim;d++){
+      const ad=bsToAd(y,m,d);
+      const isPast=ad<todayAD;
+      const isToday=(y===todayBS.year&&m===todayBS.month&&d===todayBS.day);
+      const col=(dow+d-1)%7;
+      const isSun=col===0, isSat=col===6;
+
+      let bg='#fff', color='#1f2937', border='1px solid #f0f0f0', cursor='pointer';
+      if(isPast){bg='#f9fafb';color='#d1d5db';cursor='default';}
+      else if(isToday){bg='#1a237e';color='#fff';border='1px solid #1a237e';}
+      else if(isSun){color='#e53935';}
+      else if(isSat){color='#1565c0';}
+
+      const noteText = ncNotes[bsKey(y,m,d)] || '';
+      const notePreview = noteText.length > 7 ? noteText.slice(0,6)+'…' : noteText;
+      const noteSpan = noteText
+        ? `<span title="${noteText.replace(/"/g,'&quot;')}" style="font-size:0.6rem;background:${isToday?'rgba(255,255,255,0.25)':'#e8f5e9'};color:${isToday?'#c8e6c9':'#2e7d32'};border-radius:3px;padding:1px 3px;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:block;">${notePreview}</span>`
+        : '';
+      const titleAttr = noteText ? ` title="${noteText.replace(/"/g,'&quot;')}"` : '';
+      const onclick=isPast?'':'ncSelect('+y+','+m+','+d+')';
+      html+=`<div onclick="${onclick}"${titleAttr}
+        style="text-align:center;padding:5px 2px;border-radius:7px;background:${bg};color:${color};border:${border};cursor:${cursor};min-height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:background 0.1s;"
+        onmouseover="${isPast?'':'this.style.background=this.style.background||\'#f0f2ff\''}"
+      >
+        <span style="font-size:0.95rem;font-weight:700;">${toNp(d)}</span>
+        <span style="font-size:0.65rem;opacity:0.6;">${ad.getDate()}</span>
+        ${noteSpan}
+      </div>`;
+    }
+    document.getElementById('ncGrid').innerHTML=html;
+  }
+
+  window.ncSelect = function(y,m,d){
+    const ad=bsToAd(y,m,d);
+    const adStr=fmtAD(ad);
+    document.getElementById('readyDateAD').value=adStr;
+
+    const bsStr=d+' '+M_EN[m]+' '+y+' BS';
+    const dnNp=['आइतबार','सोमबार','मंगलबार','बुधबार','बिहीबार','शुक्रबार','शनिबार'][ad.getDay()];
+    document.getElementById('rdText').textContent=toNp(d)+' '+M_NP[m]+' '+toNp(y)+' BS  |  '+adStr;
+    document.getElementById('rdText').style.color='#1f2937';
+    document.getElementById('rdDisplay').style.borderColor='#c0392b';
+
+    const sel=document.getElementById('ncSelected');
+    sel.style.display='block';
+    sel.innerHTML='<strong>'+toNp(d)+' '+M_NP[m]+' '+toNp(y)+'</strong> ('+bsStr+')  &nbsp;|&nbsp;  AD: '+adStr+'  &nbsp;|&nbsp;  '+dnNp;
+
+    ncY=y; ncM=m;
+    renderNC();
+    setTimeout(()=>{ document.getElementById('nepCal').style.display='none'; },400);
+  };
+
+  // Validate before form submit
+  document.querySelector('form[action="/shop/place-order"]').addEventListener('submit',function(e){
+    if(!document.getElementById('readyDateAD').value){
+      e.preventDefault();
+      document.getElementById('rdDisplay').style.borderColor='#e53935';
+      document.getElementById('rdDisplay').scrollIntoView({behavior:'smooth',block:'center'});
+      alert('Please select a ready date from the Nepali calendar.');
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

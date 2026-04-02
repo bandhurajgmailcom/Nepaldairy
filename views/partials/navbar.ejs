@@ -1,0 +1,41 @@
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="/logo.png" alt="Nepal Dairy NDS" style="height:36px;width:auto;object-fit:contain;">
+    <div>
+      <span class="brand-name">Nepal Dairy <span class="brand-sub">NDS Modern Foods</span></span>
+      <div id="nepaliDate" style="font-size:11px;color:#ffcdd2;margin-top:2px;"></div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="/dashboard">Dashboard</a>
+    <% if (user.role === 'Administrator' || user.role === 'Lab') { %>
+      <a href="/lab">Lab Tests</a>
+    <% } %>
+    <% if (user.role === 'Administrator' || user.role === 'Sales') { %>
+      <a href="/sales">Sales</a>
+    <% } %>
+    <a href="/pricelist">🏷️ Pricelist</a>
+    <% if (user.role !== 'Lab') { %>
+    <a href="/orders">📦 Online Orders</a>
+    <% } %>
+    <% if (user.role === 'Administrator') { %>
+      <a href="/admin/products">Products</a>
+      <a href="/admin/users">Users</a>
+      <div class="nav-dropdown">
+        <a href="/calendar" class="nav-dropbtn">📅 Calendar ▾</a>
+        <div class="nav-dropmenu">
+          <a href="/calendar">View Calendar</a>
+          <a href="/admin/nepalical">⚙ Update Calendar</a>
+        </div>
+      </div>
+    <% } else { %>
+      <a href="/profile">👤 Users</a>
+      <a href="/calendar">📅 Calendar</a>
+    <% } %>
+  </div>
+  <div class="nav-user">
+    <span class="role-badge role-<%= user.role.toLowerCase() %>"><%= user.role %></span>
+    <a href="/profile" class="username" title="My Profile / Change Password"><%= user.username %></a>
+    <a href="/logout" class="btn-logout">Logout</a>
+  </div>
+</nav>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NDS Online Order - Nepal Dairy Modern Foods</title>
+  <link rel="stylesheet" href="/css/shop.css">
+  <style>
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #006080 0%, #077097 60%, #00aeef 100%);
+      color: #fff;
+      border-radius: 16px;
+      padding: 2rem 2rem;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 30%;
+      width: 360px; height: 360px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 560px; }
+    .hero-eyebrow {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      color: #e0f7ff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 0.6rem;
+    }
+    .hero h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.3px;
+    }
+    .hero p {
+      font-size: 0.88rem;
+      opacity: 0.88;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      color: #077097;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 8px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+
+    /* ── FEATURES BAR ── */
+    .features-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .feature-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border: 1px solid #f0f0f0;
+    }
+    .feature-item .f-icon { font-size: 1.8rem; margin-bottom: 0.4rem; display: block; }
+    .feature-item .f-title { font-size: 0.88rem; font-weight: 700; color: #1f2937; }
+    .feature-item .f-desc { font-size: 0.75rem; color: #6b7280; margin-top: 2px; }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .section-header h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #1f2937;
+      position: relative;
+      padding-left: 14px;
+    }
+    .section-header h2::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: #00aeef;
+      border-radius: 2px;
+    }
+
+    /* ── CATEGORY CARDS ── */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 3rem;
+    }
+    .category-card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      text-decoration: none;
+      color: #1f2937;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border: 1px solid #f0f0f0;
+      transition: transform 0.18s, box-shadow 0.18s;
+      display: flex;
+      flex-direction: column;
+    }
+    .category-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .cat-thumb {
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+    }
+    .cat-dairy   { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+    .cat-cheese  { background: linear-gradient(135deg, #fff8e1, #ffe082); }
+    .cat-ice     { background: linear-gradient(135deg, #e8f5e9, #a5d6a7); }
+    .cat-sweets  { background: linear-gradient(135deg, #fce4ec, #f48fb1); }
+    .cat-bakery  { background: linear-gradient(135deg, #fff3e0, #ffcc80); }
+
+    .cat-body { padding: 1rem 1.1rem 1.2rem; flex: 1; }
+    .cat-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .cat-count { font-size: 0.78rem; color: #6b7280; }
+    .cat-arrow {
+      font-size: 0.78rem;
+      color: #077097;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      display: inline-block;
+    }
+
+    /* ── FOOTER ── */
+    .shop-footer-pro {
+      background: #1f2937;
+      color: #d1d5db;
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-top: 4rem;
+      font-size: 0.82rem;
+      line-height: 1.8;
+    }
+    .shop-footer-pro strong { color: #fff; }
+    .shop-footer-pro a { color: #7dd3fc; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header class="shop-header">
+  <a href="/shop" class="shop-brand">
+    <img src="/logo.png" alt="Nepal Dairy NDS" style="height:36px;width:auto;object-fit:contain;">
+    <div>
+      <span class="name">Nepal Dairy NDS</span>
+      <span class="sub">Modern Foods</span>
+    </div>
+  </a>
+  <nav class="shop-nav">
+    <a href="/shop">Home</a>
+  </nav>
+  <a href="/shop/cart" class="cart-btn">
+    🛒 Cart <span class="cart-badge" id="cartBadge"><%= cartCount %></span>
+  </a>
+</header>
+
+<div class="shop-container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <span class="hero-eyebrow">Order Online &amp; Pick Up Fresh</span>
+      <h1>Quality Dairy &amp; Fresh Foods Delivered</h1>
+      <p>Milk, cheese, ice cream, sweets &amp; bakery from Nepal's trusted dairy brand — order now and get it fresh.</p>
+      <a href="#categories" class="hero-cta">Shop Now →</a>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div id="categories">
+    <div class="section-header">
+      <h2>Shop by Category</h2>
+    </div>
+    <% const icons  = { Dairy: '🥛', Cheese: '🧀', 'Ice-Cream': '🍦', Sweets: '🍮', Bakery: '🍞' }; %>
+    <% const themes = { Dairy: 'cat-dairy', Cheese: 'cat-cheese', 'Ice-Cream': 'cat-ice', Sweets: 'cat-sweets', Bakery: 'cat-bakery' }; %>
+    <div class="category-grid">
+      <% categories.forEach(cat => { %>
+      <a href="/shop/products?category=<%= encodeURIComponent(cat.CATEGORY) %>" class="category-card">
+        <div class="cat-thumb <%= themes[cat.CATEGORY] || '' %>">
+          <%= icons[cat.CATEGORY] || '🛒' %>
+        </div>
+        <div class="cat-body">
+          <div class="cat-name"><%= cat.CATEGORY %></div>
+          <div class="cat-count"><%= cat.cnt %> products available</div>
+          <span class="cat-arrow">Browse →</span>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+  </div>
+
+</div>
+
+<footer class="shop-footer-pro">
+  <strong>Nepal Dairy NDS Modern Foods Pvt. Ltd.</strong><br>
+  📞 +977-01-5915373 &nbsp;|&nbsp; ✉️ <a href="mailto:info@nepaldairy.com.np">info@nepaldairy.com.np</a><br>
+  &copy; <%= new Date().getFullYear() %> All rights reserved.
+</footer>
+
+<div class="toast" id="toast"></div>
+</body>
+</html>

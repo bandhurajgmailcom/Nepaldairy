@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart - NDS Online Order</title>
+  <link rel="stylesheet" href="/css/shop.css">
+</head>
+<body>
+
+<header class="shop-header">
+  <a href="/shop" class="shop-brand">
+    <img src="/logo.png" alt="Nepal Dairy NDS" style="height:36px;width:auto;object-fit:contain;">
+    <div>
+      <span class="name">Nepal Dairy NDS</span>
+      <span class="sub">Modern Foods</span>
+    </div>
+  </a>
+  <nav class="shop-nav">
+    <a href="/shop">Home</a>
+  </nav>
+  <a href="/shop/cart" class="cart-btn">
+    🛒 Cart <span class="cart-badge" id="cartBadge"><%= cartCount %></span>
+  </a>
+</header>
+
+<div class="shop-container">
+  <div class="breadcrumb">
+    <a href="/shop">Home</a> <span>/</span> <strong>Your Cart</strong>
+  </div>
+
+  <h2 class="page-title">Your Cart</h2>
+
+  <% if (cart.length === 0) { %>
+  <div class="empty-cart">
+    <div class="empty-icon">🛒</div>
+    <p>Your cart is empty.</p>
+    <a href="/shop" class="btn-secondary">Continue Shopping</a>
+  </div>
+  <% } else { %>
+  <table class="cart-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Pack</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Amount</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% cart.forEach(item => { %>
+      <tr>
+        <td>
+          <strong><%= item.product %></strong>
+          <div style="font-size:0.78rem;color:#6b7280;"><%= item.subcategory %></div>
+        </td>
+        <td><%= item.qtyPack %> / <%= item.unit %></td>
+        <td>Rs. <%= item.mrp.toLocaleString() %></td>
+        <td>
+          <form method="POST" action="/shop/cart/update" style="display:inline">
+            <input type="hidden" name="productId" value="<%= item.productId %>">
+            <input class="qty-input" type="number" name="quantity" value="<%= item.quantity %>" min="1" max="999"
+                   onchange="this.form.submit()">
+          </form>
+        </td>
+        <td><strong>Rs. <%= item.amount.toLocaleString() %></strong></td>
+        <td>
+          <form method="POST" action="/shop/cart/remove" style="display:inline">
+            <input type="hidden" name="productId" value="<%= item.productId %>">
+            <button class="btn-remove" type="submit" title="Remove">✕</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+      <tr class="cart-total-row">
+        <td colspan="4" style="text-align:right;padding-right:1rem;">Total</td>
+        <td colspan="2">Rs. <%= total.toLocaleString() %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="cart-actions">
+    <a href="/shop" class="btn-secondary">← Continue Shopping</a>
+    <a href="/shop/checkout" class="btn-primary" style="width:auto;margin-top:0;padding:10px 32px;">
+      Proceed to Checkout →
+    </a>
+  </div>
+  <% } %>
+</div>
+
+<footer class="shop-footer">
+  &copy; <%= new Date().getFullYear() %> Nepal Dairy NDS Modern Foods Pvt. Ltd.
+</footer>
+</body>
+</html>

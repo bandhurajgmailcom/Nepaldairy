@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Orders - Nepal Dairy NDS</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .orders-filters { background:#fff; border-radius:10px; padding:1rem 1.2rem; margin-bottom:1.2rem; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+    .orders-filters form { display:flex; flex-wrap:wrap; gap:0.7rem; align-items:flex-end; }
+    .orders-filters .f-group { display:flex; flex-direction:column; gap:3px; }
+    .orders-filters label { font-size:0.75rem; font-weight:600; color:#6b7280; }
+    .orders-filters input, .orders-filters select {
+      padding:6px 10px; border:1.5px solid #e5e7eb; border-radius:6px; font-size:0.85rem;
+      outline:none; min-width:130px;
+    }
+    .orders-filters input:focus, .orders-filters select:focus { border-color:#c0392b; }
+    .filter-btn { background:#c0392b; color:#fff; border:none; padding:7px 18px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer; }
+    .filter-btn:hover { background:#962d22; }
+    .clear-btn { color:#c0392b; border:1.5px solid #c0392b; background:#fff; padding:6px 14px; border-radius:6px; font-size:0.85rem; text-decoration:none; font-weight:600; }
+    .clear-btn:hover { background:#c0392b; color:#fff; }
+
+    .pivot-wrap { background:#fff; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:1.2rem; overflow-x:auto; }
+    .pivot-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .pivot-table th { background:#c0392b; color:#fff; padding:8px 12px; text-align:center; white-space:nowrap; font-weight:600; }
+    .pivot-table th.col-date { text-align:left; background:#7b1113; }
+    .pivot-table td { padding:7px 12px; border-bottom:1px solid #f3f4f6; text-align:center; vertical-align:middle; }
+    .pivot-table td.col-date { text-align:left; font-weight:600; color:#1f2937; white-space:nowrap; }
+    .pivot-table tr:last-child td { border-bottom:none; background:#fef2f2; font-weight:700; }
+    .pivot-table tr:hover td { background:#fef9f9; }
+    .pivot-table tr:last-child td { border-bottom:none; }
+    .pivot-cell-count { font-weight:700; color:#1f2937; }
+    .pivot-cell-amt { font-size:0.75rem; color:#6b7280; margin-top:1px; }
+    .pivot-cell-zero { color:#d1d5db; }
+    .pivot-total-row td { background:#fef2f2 !important; font-weight:700; border-top:2px solid #c0392b; }
+    .pivot-bs { font-size:0.7rem; color:#6b7280; font-weight:400; display:block; }
+
+    .orders-table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08); font-size:0.85rem; }
+    .orders-table th { background:#c0392b; color:#fff; padding:9px 10px; text-align:left; white-space:nowrap; }
+    .orders-table th a { color:#fff; text-decoration:none; display:flex; align-items:center; gap:4px; }
+    .orders-table th a:hover { text-decoration:underline; }
+    .sort-icon { font-size:0.7rem; opacity:0.7; }
+    .sort-icon.active { opacity:1; }
+    .orders-table td { padding:8px 10px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+    .orders-table tr:last-child td { border-bottom:none; }
+    .orders-table tr:hover td { background:#fef2f2; }
+
+    .status-badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:0.75rem; font-weight:600; }
+    .status-New { background:#dbeafe; color:#1e40af; }
+    .status-Processing { background:#fef3c7; color:#92400e; }
+    .status-Completed { background:#d1fae5; color:#065f46; }
+    .status-Cancelled { background:#fee2e2; color:#991b1b; }
+
+    .status-form select { padding:3px 6px; border:1px solid #e5e7eb; border-radius:4px; font-size:0.78rem; cursor:pointer; }
+
+    .pagination { display:flex; gap:0.4rem; justify-content:center; margin-top:1.2rem; flex-wrap:wrap; }
+    .pagination a, .pagination span {
+      padding:5px 11px; border-radius:6px; border:1.5px solid #e5e7eb;
+      font-size:0.85rem; text-decoration:none; color:#374151;
+    }
+    .pagination a:hover { border-color:#c0392b; color:#c0392b; }
+    .pagination .current { background:#c0392b; color:#fff; border-color:#c0392b; font-weight:700; }
+
+    .no-orders { text-align:center; padding:3rem; color:#9ca3af; }
+    .no-orders .icon { font-size:3rem; margin-bottom:0.8rem; }
+
+    .shop-link-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      background:#27ae60; color:#fff; text-decoration:none;
+      padding:7px 16px; border-radius:6px; font-size:0.85rem; font-weight:600;
+    }
+    .shop-link-btn:hover { background:#1e8449; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <main class="main-content">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+      <div>
+        <h2>Online Orders</h2>
+        <div class="nepali-date-inline" id="nepaliDate"></div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <button onclick="location.reload()" style="background:#fff;border:1.5px solid #c0392b;color:#c0392b;padding:7px 16px;border-radius:6px;font-size:0.85rem;font-weight:600;cursor:pointer;" onmouseover="this.style.background='#c0392b';this.style.color='#fff'" onmouseout="this.style.background='#fff';this.style.color='#c0392b'">↻ Refresh</button>
+        <a href="/shop" class="shop-link-btn" target="_blank">🛒 Open Online Shop</a>
+      </div>
+    </div>
+
+    <!-- Pivot Summary -->
+    <div class="pivot-wrap">
+      <table class="pivot-table">
+        <thead>
+          <tr>
+            <th class="col-date">Ready By</th>
+            <% STATUSES.forEach(s => { %><th><%= s %></th><% }) %>
+            <th>Total Orders</th>
+            <th>Total Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%
+            const pivotTotals = {};
+            STATUSES.forEach(s => pivotTotals[s] = { orderCount:0, totalAmount:0 });
+            let grandOrders = 0, grandAmount = 0;
+          %>
+          <% pivotDates.forEach(date => { %>
+          <%
+            let rowOrders = 0, rowAmount = 0;
+            STATUSES.forEach(s => {
+              const cell = (pivotMap[date] && pivotMap[date][s]) || { orderCount:0, totalAmount:0 };
+              rowOrders += parseInt(cell.orderCount)  || 0;
+              rowAmount += parseFloat(cell.totalAmount) || 0;
+              pivotTotals[s].orderCount  += parseInt(cell.orderCount)  || 0;
+              pivotTotals[s].totalAmount += parseFloat(cell.totalAmount) || 0;
+            });
+            grandOrders += rowOrders;
+            grandAmount += rowAmount;
+          %>
+          <tr>
+            <td class="col-date">
+              <% if (date === '(No date)') { %>
+                <span style="color:#9ca3af;font-style:italic;">(No date set)</span>
+              <% } else { %>
+                <%= date %>
+                <span class="pivot-bs ready-bs" data-ad="<%= date %>"></span>
+              <% } %>
+            </td>
+            <% STATUSES.forEach(s => {
+              const cell = (pivotMap[date] && pivotMap[date][s]) || null;
+            %>
+            <td>
+              <% if (cell) { %>
+                <div class="pivot-cell-count"><%= cell.orderCount %></div>
+                <div class="pivot-cell-amt">Rs. <%= cell.totalAmount.toLocaleString() %></div>
+              <% } else { %>
+                <span class="pivot-cell-zero">—</span>
+              <% } %>
+            </td>
+            <% }) %>
+            <td><strong><%= rowOrders %></strong></td>
+            <td><strong>Rs. <%= rowAmount.toLocaleString() %></strong></td>
+          </tr>
+          <% }) %>
+          <!-- Grand total row -->
+          <tr class="pivot-total-row">
+            <td class="col-date">Grand Total</td>
+            <% STATUSES.forEach(s => { %>
+            <td>
+              <div class="pivot-cell-count"><%= pivotTotals[s].orderCount %></div>
+              <div class="pivot-cell-amt">Rs. <%= pivotTotals[s].totalAmount.toLocaleString() %></div>
+            </td>
+            <% }) %>
+            <td><%= grandOrders %></td>
+            <td>Rs. <%= grandAmount.toLocaleString() %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Filters -->
+    <div class="orders-filters">
+      <form method="GET" action="/orders">
+        <div class="f-group">
+          <label>Category</label>
+          <select name="category">
+            <option value="">All Categories</option>
+            <% categories.forEach(c => { %>
+            <option value="<%= c.CATEGORY %>" <%= filters.category === c.CATEGORY ? 'selected' : '' %>><%= c.CATEGORY %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Subcategory</label>
+          <select name="subcategory">
+            <option value="">All Subcategories</option>
+            <% subcategories.forEach(s => { %>
+            <option value="<%= s.SUBCATEGORY %>" <%= filters.subcategory === s.SUBCATEGORY ? 'selected' : '' %>><%= s.SUBCATEGORY %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Product</label>
+          <input type="text" name="product" value="<%= filters.product %>" placeholder="Search product…">
+        </div>
+        <div class="f-group">
+          <label>Ready By From</label>
+          <input type="date" name="date_from" value="<%= filters.date_from %>">
+        </div>
+        <div class="f-group">
+          <label>Ready By To</label>
+          <input type="date" name="date_to" value="<%= filters.date_to %>">
+        </div>
+        <div class="f-group">
+          <label>Status</label>
+          <select name="status">
+            <option value="">All Status</option>
+            <option value="New" <%= filters.status === 'New' ? 'selected' : '' %>>New</option>
+            <option value="Processing" <%= filters.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+            <option value="Completed" <%= filters.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+            <option value="Cancelled" <%= filters.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:flex-end;">
+          <button type="submit" class="filter-btn">🔍 Filter</button>
+          <a href="/orders" class="clear-btn">✕ Clear</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <% if (rows.length === 0) { %>
+    <div class="no-orders">
+      <div class="icon">📋</div>
+      <p>No orders found.</p>
+    </div>
+    <% } else { %>
+    <div style="overflow-x:auto;">
+      <%
+        function sortUrl(col) {
+          const dir = (sortby === col && sortdir === 'asc') ? 'desc' : 'asc';
+          const f = filters;
+          const q = new URLSearchParams({
+            ...(f.category    ? {category:f.category}       : {}),
+            ...(f.subcategory ? {subcategory:f.subcategory} : {}),
+            ...(f.product     ? {product:f.product}         : {}),
+            ...(f.date_from   ? {date_from:f.date_from}     : {}),
+            ...(f.date_to     ? {date_to:f.date_to}         : {}),
+            ...(f.status      ? {status:f.status}           : {}),
+            sortby: col, sortdir: dir, page: 1
+          });
+          return '/orders?' + q.toString();
+        }
+        function sortIcon(col) {
+          if (sortby !== col) return '<span class="sort-icon">⇅</span>';
+          return sortdir === 'asc'
+            ? '<span class="sort-icon active">↑</span>'
+            : '<span class="sort-icon active">↓</span>';
+        }
+      %>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th><a href="<%= sortUrl('order_no') %>">Order No <%- sortIcon('order_no') %></a></th>
+            <th><a href="<%= sortUrl('order_date') %>">Order Date <%- sortIcon('order_date') %></a></th>
+            <th><a href="<%= sortUrl('ready_by') %>">Ready By <%- sortIcon('ready_by') %></a></th>
+            <th><a href="<%= sortUrl('category') %>">Category <%- sortIcon('category') %></a></th>
+            <th><a href="<%= sortUrl('subcategory') %>">Subcategory <%- sortIcon('subcategory') %></a></th>
+            <th><a href="<%= sortUrl('product') %>">Product <%- sortIcon('product') %></a></th>
+            <th><a href="<%= sortUrl('pack') %>">Pack <%- sortIcon('pack') %></a></th>
+            <th><a href="<%= sortUrl('qty') %>">Qty <%- sortIcon('qty') %></a></th>
+            <th><a href="<%= sortUrl('mrp') %>">MRP <%- sortIcon('mrp') %></a></th>
+            <th><a href="<%= sortUrl('amount') %>">Amount <%- sortIcon('amount') %></a></th>
+            <th><a href="<%= sortUrl('customer') %>">Customer <%- sortIcon('customer') %></a></th>
+            <th><a href="<%= sortUrl('contact') %>">Contact <%- sortIcon('contact') %></a></th>
+            <th><a href="<%= sortUrl('status') %>">Status <%- sortIcon('status') %></a></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(row => { %>
+          <tr>
+            <td><code style="font-size:0.78rem;"><%= row.ORDER_NO %></code></td>
+            <td style="white-space:nowrap;">
+              <span style="font-weight:600;color:#c0392b;"><%= row.ORDER_DATE %></span>
+              <span style="display:block;font-size:0.75rem;color:#6b7280;"><%= row.BS_DATE || '' %></span>
+            </td>
+            <td style="white-space:nowrap;">
+              <% if (row.READY_DATE) { %>
+                <span style="font-weight:600;color:#c0392b;"><%= row.READY_DATE %></span>
+                <span class="ready-bs" data-ad="<%= row.READY_DATE %>" style="display:block;font-size:0.75rem;color:#6b7280;"></span>
+              <% } else { %>—<% } %>
+            </td>
+            <td><%= row.CATEGORY || '—' %></td>
+            <td><%= row.SUBCATEGORY || '—' %></td>
+            <td><strong><%= row.PRODUCT %></strong></td>
+            <td style="white-space:nowrap;"><%= row.QTY_PACK %> / <%= row.UNIT %></td>
+            <td style="text-align:center;font-weight:700;"><%= row.QUANTITY %></td>
+            <td>Rs. <%= row.MRP ? row.MRP.toLocaleString() : '—' %></td>
+            <td><strong>Rs. <%= row.AMOUNT ? row.AMOUNT.toLocaleString() : '—' %></strong></td>
+            <td><%= row.CUSTOMER_NAME %></td>
+            <td style="white-space:nowrap;"><%= row.CUSTOMER_PHONE %></td>
+            <td>
+              <form method="POST" action="/orders/<%= row.ORDER_ID %>/status" class="status-form">
+                <select name="status" onchange="this.form.submit()">
+                  <option value="New" <%= row.ORDER_STATUS === 'New' ? 'selected' : '' %>>New</option>
+                  <option value="Processing" <%= row.ORDER_STATUS === 'Processing' ? 'selected' : '' %>>Processing</option>
+                  <option value="Completed" <%= row.ORDER_STATUS === 'Completed' ? 'selected' : '' %>>Completed</option>
+                  <option value="Cancelled" <%= row.ORDER_STATUS === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                </select>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% for (let p = 1; p <= totalPages; p++) { %>
+        <% const q = new URLSearchParams(filters); q.set('page', p); %>
+        <% if (p === page) { %>
+          <span class="current"><%= p %></span>
+        <% } else { %>
+          <a href="/orders?<%= q.toString() %>"><%= p %></a>
+        <% } %>
+      <% } %>
+    </div>
+    <% } %>
+    <% } %>
+  </main>
+  <script src="/nepali-calendar.js"></script>
+  <script>
+    // Convert READY_DATE (AD) to BS and display below
+    function renderReadyBS() {
+      document.querySelectorAll('.ready-bs[data-ad]').forEach(el => {
+        const adStr = el.getAttribute('data-ad');
+        if (!adStr) return;
+        const ad = new Date(adStr + 'T00:00:00');
+        if (isNaN(ad)) return;
+        const bs = adToBs(ad);
+        el.textContent = bs.day + ' ' + BS_MONTHS[bs.month] + ' ' + bs.year + ' BS';
+      });
+    }
+    // Run after BS_DATA is loaded (nepali-calendar.js fetches it async)
+    document.addEventListener('DOMContentLoaded', () => {
+      renderReadyBS();
+      // Re-render after live data loads
+      const origFetch = window.fetch;
+      const orig = window.updateNepaliDate;
+      window.updateNepaliDate = function() { orig && orig(); renderReadyBS(); };
+    });
+  </script>
+</body>
+</html>

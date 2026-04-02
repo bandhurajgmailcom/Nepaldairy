@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= category %> - NDS Online Order</title>
+  <link rel="stylesheet" href="/css/shop.css">
+</head>
+<body>
+
+<header class="shop-header">
+  <a href="/shop" class="shop-brand">
+    <img src="/logo.png" alt="Nepal Dairy NDS" style="height:36px;width:auto;object-fit:contain;">
+    <div>
+      <span class="name">Nepal Dairy NDS</span>
+      <span class="sub">Modern Foods</span>
+    </div>
+  </a>
+  <nav class="shop-nav">
+    <a href="/shop">Home</a>
+  </nav>
+  <a href="/shop/cart" class="cart-btn">
+    🛒 Cart <span class="cart-badge" id="cartBadge"><%= cartCount %></span>
+  </a>
+</header>
+
+<div class="shop-container">
+  <div class="breadcrumb">
+    <a href="/shop">Home</a>
+    <span>/</span>
+    <% if (subcategory) { %>
+      <a href="/shop/products?category=<%= encodeURIComponent(category) %>"><%= category %></a>
+      <span>/</span>
+      <strong><%= subcategory %></strong>
+    <% } else { %>
+      <strong><%= category %></strong>
+    <% } %>
+  </div>
+
+  <h2 class="page-title"><%= subcategory || category %></h2>
+
+  <% if (subcategories.length > 0) { %>
+  <div class="subcat-tabs">
+    <a href="/shop/products?category=<%= encodeURIComponent(category) %>"
+       class="subcat-tab <%= !subcategory ? 'active' : '' %>">All</a>
+    <% subcategories.forEach(sc => { %>
+    <a href="/shop/products?category=<%= encodeURIComponent(category) %>&subcategory=<%= encodeURIComponent(sc.SUBCATEGORY) %>"
+       class="subcat-tab <%= subcategory === sc.SUBCATEGORY ? 'active' : '' %>">
+      <%= sc.SUBCATEGORY %>
+    </a>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <% if (products.length === 0) { %>
+  <div class="empty-cart">
+    <div class="empty-icon">📦</div>
+    <p>No products found in this category.</p>
+    <a href="/shop" class="btn-secondary">Back to Home</a>
+  </div>
+  <% } else { %>
+  <div class="product-grid">
+    <% products.forEach(p => { %>
+    <div class="product-card">
+      <% if (p.URL) { %>
+        <img class="product-img"
+             src="https://nepaldairy.com.np<%= p.URL %>"
+             alt="<%= p.PRODUCT %>"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-img-placeholder" style="display:none">
+          <%= p.CATEGORY === 'Ice-Cream' ? '🍦' : p.CATEGORY === 'Dairy' ? '🥛' : p.CATEGORY === 'Cheese' ? '🧀' : p.CATEGORY === 'Sweets' ? '🍮' : '🍞' %>
+        </div>
+      <% } else { %>
+        <div class="product-img-placeholder">
+          <%= p.CATEGORY === 'Ice-Cream' ? '🍦' : p.CATEGORY === 'Dairy' ? '🥛' : p.CATEGORY === 'Cheese' ? '🧀' : p.CATEGORY === 'Sweets' ? '🍮' : '🍞' %>
+        </div>
+      <% } %>
+      <div class="product-info">
+        <div class="product-subcat"><%= p.SUBCATEGORY || '' %></div>
+        <div class="product-name"><%= p.PRODUCT %></div>
+        <div class="product-pack"><%= p.QTY %> / <%= p.UNIT %></div>
+        <div class="product-price">
+          Rs. <%= p.MRP ? p.MRP.toLocaleString() : '-' %>
+          <small>MRP</small>
+        </div>
+        <button class="btn-add-cart"
+                onclick="addToCart(<%= p.ID %>, this)"
+                data-id="<%= p.ID %>">
+          + Add to Cart
+        </button>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<footer class="shop-footer">
+  &copy; <%= new Date().getFullYear() %> Nepal Dairy NDS Modern Foods Pvt. Ltd. &nbsp;|&nbsp; +977-01-5915373
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  setTimeout(() => { t.className = 'toast'; }, 2500);
+}
+
+function addToCart(productId, btn) {
+  btn.disabled = true;
+  fetch('/shop/cart/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId, quantity: 1 })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('cartBadge').textContent = data.cartCount;
+      btn.textContent = '✓ Added';
+      btn.classList.add('added');
+      showToast('Added to cart!', 'success');
+      setTimeout(() => {
+        btn.textContent = '+ Add to Cart';
+        btn.classList.remove('added');
+        btn.disabled = false;
+      }, 1500);
+    } else {
+      showToast('Error: ' + data.message);
+      btn.disabled = false;
+    }
+  })
+  .catch(() => { btn.disabled = false; showToast('Network error'); });
+}
+</script>
+</body>
+</html>

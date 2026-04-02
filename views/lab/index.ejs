@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab Tests - Nepal Dairy NDS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <main class="main-content">
+    <div class="page-header">
+      <h2>🔬 Lab Tests</h2>
+      <div id="nepaliDate"></div>
+    </div>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <div class="card">
+      <h3>Record New Test</h3>
+      <form method="POST" action="/lab/add" class="form-grid">
+        <div class="form-group">
+          <label>Product</label>
+          <select name="product_id" required>
+            <option value="">-- Select Product --</option>
+            <% products.forEach(p => { %>
+              <option value="<%= p.id %>"><%= p.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Test Date</label>
+          <input type="date" name="test_date" required value="<%= new Date().toISOString().split('T')[0] %>" data-ndp>
+        </div>
+        <div class="form-group">
+          <label>Fat (%)</label>
+          <input type="number" step="0.01" name="fat" placeholder="e.g. 3.5">
+        </div>
+        <div class="form-group">
+          <label>SNF (%)</label>
+          <input type="number" step="0.01" name="snf" placeholder="e.g. 8.5">
+        </div>
+        <div class="form-group">
+          <label>Moisture (%)</label>
+          <input type="number" step="0.01" name="moisture" placeholder="e.g. 12.0">
+        </div>
+        <div class="form-group">
+          <label>Result</label>
+          <select name="result">
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label>Notes</label>
+          <textarea name="notes" rows="2" placeholder="Additional notes..."></textarea>
+        </div>
+        <div class="form-full">
+          <button type="submit" class="btn-primary">Save Lab Test</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <h3>Recent Lab Tests</h3>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Product</th><th>Date</th><th>Fat%</th><th>SNF%</th><th>Moisture%</th><th>Result</th><th>Notes</th>
+              <% if (user.role === 'Administrator') { %><th>Action</th><% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <% tests.forEach((t, i) => { %>
+            <tr>
+              <td><%= i+1 %></td>
+              <td><%= t.product_name %></td>
+              <td>
+                <%= t.test_date %>
+                <div class="ndp-table-bs" data-ad="<%= t.test_date %>"></div>
+              </td>
+              <td><%= t.fat || '-' %></td>
+              <td><%= t.snf || '-' %></td>
+              <td><%= t.moisture || '-' %></td>
+              <td><span class="badge badge-<%= (t.result||'').toLowerCase() %>"><%= t.result %></span></td>
+              <td><%= t.notes || '-' %></td>
+              <% if (user.role === 'Administrator') { %>
+              <td>
+                <form method="POST" action="/lab/delete/<%= t.id %>" onsubmit="return confirm('Delete?')">
+                  <button class="btn-danger-sm">Del</button>
+                </form>
+              </td>
+              <% } %>
+            </tr>
+            <% }) %>
+            <% if (tests.length === 0) { %>
+            <tr><td colspan="9" class="empty">No lab tests recorded yet.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <script src="/nepali-calendar.js"></script>
+  <script src="/nepali-datepicker.js"></script>
+</body>
+</html>

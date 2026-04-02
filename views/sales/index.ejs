@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales - Nepal Dairy NDS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  <main class="main-content">
+    <div class="page-header">
+      <h2>💰 Sales Records</h2>
+      <div id="nepaliDate"></div>
+    </div>
+    <div class="card">
+      <h3>Record New Sale</h3>
+      <form method="POST" action="/sales/add" class="form-grid">
+        <div class="form-group">
+          <label>Product</label>
+          <select name="product_id" required>
+            <option value="">-- Select Product --</option>
+            <% products.forEach(p => { %>
+              <option value="<%= p.id %>"><%= p.name %> (Rs. <%= p.price %>/<%= p.unit %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sale Date</label>
+          <input type="date" name="sale_date" required value="<%= new Date().toISOString().split('T')[0] %>" data-ndp>
+        </div>
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" step="0.01" name="quantity" required placeholder="e.g. 10">
+        </div>
+        <div class="form-group">
+          <label>Unit</label>
+          <input type="text" name="unit" placeholder="Liter / Kg" value="Liter">
+        </div>
+        <div class="form-group">
+          <label>Customer</label>
+          <input type="text" name="customer" placeholder="Customer name">
+        </div>
+        <div class="form-group">
+          <label>Total Amount (Rs.)</label>
+          <input type="number" step="0.01" name="total_amount" required placeholder="e.g. 850">
+        </div>
+        <div class="form-full">
+          <button type="submit" class="btn-primary">Save Sale</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-header-flex">
+        <h3>Recent Sales</h3>
+        <div class="grand-total">Total Revenue: <strong>Rs. <%= grandTotal.toLocaleString() %></strong></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Product</th><th>Date</th><th>Qty</th><th>Unit</th><th>Customer</th><th>Amount (Rs.)</th>
+              <% if (user.role === 'Administrator') { %><th>Action</th><% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <% sales.forEach((s, i) => { %>
+            <tr>
+              <td><%= i+1 %></td>
+              <td><%= s.product_name %></td>
+              <td>
+                <%= s.sale_date %>
+                <div class="ndp-table-bs" data-ad="<%= s.sale_date %>"></div>
+              </td>
+              <td><%= s.quantity %></td>
+              <td><%= s.unit %></td>
+              <td><%= s.customer || '-' %></td>
+              <td>Rs. <%= (s.total_amount || 0).toLocaleString() %></td>
+              <% if (user.role === 'Administrator') { %>
+              <td>
+                <form method="POST" action="/sales/delete/<%= s.id %>" onsubmit="return confirm('Delete?')">
+                  <button class="btn-danger-sm">Del</button>
+                </form>
+              </td>
+              <% } %>
+            </tr>
+            <% }) %>
+            <% if (sales.length === 0) { %>
+            <tr><td colspan="8" class="empty">No sales recorded yet.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <script src="/nepali-calendar.js"></script>
+  <script src="/nepali-datepicker.js"></script>
+</body>
+</html>

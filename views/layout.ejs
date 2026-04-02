@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nepal Dairy NDS Modern Foods</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="/logo.png" alt="Nepal Dairy NDS" style="height:36px;width:auto;object-fit:contain;">
+      <span class="brand-name">Nepal Dairy <span class="brand-sub">NDS Modern Foods</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="/dashboard">Dashboard</a>
+      <% if (user.role === 'Administrator' || user.role === 'Lab') { %>
+        <a href="/lab">Lab Tests</a>
+      <% } %>
+      <% if (user.role === 'Administrator' || user.role === 'Sales') { %>
+        <a href="/sales">Sales</a>
+      <% } %>
+      <% if (user.role === 'Administrator') { %>
+        <a href="/admin/products">Products</a>
+        <a href="/admin/users">Users</a>
+      <% } %>
+    </div>
+    <div class="nav-user">
+      <span class="role-badge role-<%= user.role.toLowerCase() %>"><%= user.role %></span>
+      <span class="username"><%= user.username %></span>
+      <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+  <div class="nepali-date" id="nepaliDate"></div>
+  <main class="main-content">
+    <%- body %>
+  </main>
+  <script src="/nepali-calendar.js"></script>
+</body>
+</html>
